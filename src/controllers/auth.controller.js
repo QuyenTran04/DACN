@@ -169,8 +169,6 @@ exports.loginWithGoogle = async (req, res) => {
       user = await User.create({
         name,
         email,
-        // password: có thể để trống (schema không required) hoặc tạo random hash
-        // password: await bcrypt.hash(Math.random().toString(36), 10),
         role: "student",
         avatar,
         googleId,

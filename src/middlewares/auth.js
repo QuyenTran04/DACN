@@ -3,7 +3,6 @@ const User = require("../models/User");
 
 exports.requireAuth = async (req, res, next) => {
   try {
-    // Ưu tiên cookie, fallback Bearer
     const tokenFromCookie = req.cookies?.token;
     const tokenFromHeader = req.headers.authorization?.startsWith("Bearer ")
       ? req.headers.authorization.slice(7)
@@ -13,12 +12,21 @@ exports.requireAuth = async (req, res, next) => {
     if (!token) return res.status(401).json({ message: "Chưa đăng nhập" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.auth = { uid: decoded.uid, role: decoded.role };
 
-    // (tuỳ chọn) kiểm tra user còn tồn tại/đang active
+    // Tìm user trong DB để đảm bảo còn tồn tại
     const user = await User.findById(decoded.uid);
-    if (!user)
+    if (!user) {
       return res.status(401).json({ message: "Tài khoản không còn tồn tại" });
+    }
+
+    // Gán vào req.user cho dễ dùng trong controller
+    req.user = {
+      id: decoded.uid,
+      role: decoded.role,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+    };
 
     next();
   } catch (err) {
@@ -30,8 +38,9 @@ exports.requireAuth = async (req, res, next) => {
 
 exports.requireRole = (...roles) => {
   return (req, res, next) => {
-    if (!req.auth?.role || !roles.includes(req.auth.role))
+    if (!req.user?.role || !roles.includes(req.user.role)) {
       return res.status(403).json({ message: "Không có quyền truy cập" });
+    }
     next();
   };
 };
