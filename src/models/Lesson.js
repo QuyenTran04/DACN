@@ -7,8 +7,8 @@ const lessonSchema = new Schema(
     title: { type: String, required: true, trim: true, maxlength: 200 },
     videoUrl: String,
     content: String,
-    order: { type: Number, default: 0 }, // thứ tự trong khóa học
-    resources: [String], // link tài liệu kèm theo
+    order: { type: Number, default: 0 }, 
+    resources: [String], 
   },
   { timestamps: true }
 );
