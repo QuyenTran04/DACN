@@ -37,7 +37,7 @@ exports.createLesson = async (req, res) => {
       const uploaded = await cloudinary.uploader.upload(dataURI, {
         folder: "lms/lessons/videos",
         resource_type: "video",
-        chunk_size: 6000000, // 6MB (upload lớn)
+        chunk_size: 60000000, // 6MB (upload lớn)
       });
       videoUrl = uploaded.secure_url;
     }

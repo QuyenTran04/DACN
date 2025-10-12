@@ -6,25 +6,36 @@ const upload = multer({
   storage,
   limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
   fileFilter: (req, file, cb) => {
-    const ok = [
+    const allowed = [
+      // Hình ảnh
       "image/jpeg",
       "image/png",
       "image/webp",
       "image/jpg",
       "image/svg+xml",
+
+      // Video
       "video/mp4",
       "video/webm",
       "video/ogg",
       "video/mkv",
       "video/quicktime",
-    ].includes(file.mimetype);
-    ok
-      ? cb(null, true)
-      : cb(
-          new Error(
-            "Chỉ cho phép ảnh (JPG/PNG/WebP/SVG) hoặc video (MP4/WebM/MKV/MOV)"
-          )
-        );
+
+      // Tài liệu cho AI quiz
+      "application/pdf",
+      "application/msword", // .doc (cũ)
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    ];
+
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Không hỗ trợ định dạng này. Chỉ cho phép ảnh (JPG/PNG/WebP/SVG), video (MP4/WebM/MKV/MOV) hoặc tài liệu (PDF/DOC/DOCX)."
+        )
+      );
+    }
   },
 });
 

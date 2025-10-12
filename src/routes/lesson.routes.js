@@ -7,7 +7,7 @@ const upload = require("../middlewares/upload");
 router.post(
   "/createLesson",
   middlewares.requireAuth,
-  upload.single("video"),
+  upload.single("videoUrl"),
   lessonController.createLesson
 );
 module.exports = router;
