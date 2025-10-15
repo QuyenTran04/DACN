@@ -10,6 +10,8 @@ const categoryRoutes = require("./routes/category.routes");
 const courseRoutes = require("./routes/course.routes");
 const lessonRoutes = require("./routes/lesson.routes");
 const quizRoutes = require("./routes/quiz.routes");
+const adminRoutes = require("./routes/admin.routes");
+
 connectDB();
 const app = express();
 app.use(express.json());
@@ -32,7 +34,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/lessons", lessonRoutes);
 app.use("/api/quizzes", quizRoutes);
-
+app.use("/api/admin", adminRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server chạy trên cổng ${PORT}`));
 

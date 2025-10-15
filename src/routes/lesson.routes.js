@@ -10,4 +10,10 @@ router.post(
   upload.single("videoUrl"),
   lessonController.createLesson
 );
+
+router.get(
+  "listLessonsByCourse/:courseId",
+  middlewares.requireAuth,
+  lessonController.listLessonsByCourse
+);
 module.exports = router;

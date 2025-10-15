@@ -13,8 +13,6 @@ router.post(
 );
 router.get(
   "/getCourses",
-  middleware.requireAuth,
-  middleware.requireRole("admin", "instructor"),
   Course.getCourses
 );
 router.get(
@@ -30,11 +28,6 @@ router.put(
   upload.single("imageUrl"),
   Course.updateCourse
 );
-router.get(
-  "/getMyCourses",
-  middleware.requireAuth,
-  middleware.requireRole("admin", "instructor"),
-  Course.getMyCourses
-);
+router.get("/getCourseById/:id", middleware.requireAuth, Course.getCourseById);
 
 module.exports = router;
