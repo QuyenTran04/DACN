@@ -123,13 +123,30 @@ exports.login = async (req, res) => {
       { $set: { lastLoginAt: new Date() } }
     );
 
-    const token = signAndSetCookie(res, { uid: user._id, role: user.role });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    const { password: _, ...safe } = user.toObject();
-    return res.json({
+    // ✅ Đặt cookie token (đoạn bạn hỏi)
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // ✅ Trả về user để FE lưu vào context
+    res.json({
       message: "Đăng nhập thành công",
       token,
-      user: userToSafe(safe),
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -210,12 +227,28 @@ exports.loginWithGoogle = async (req, res) => {
 // GET /api/auth/me
 exports.me = async (req, res) => {
   try {
-    const user = await User.findById(req.auth.uid);
-    if (!user)
+    const userId = req.user?.id || req.user?._id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ message: "Chưa đăng nhập hoặc token không hợp lệ" });
+    }
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
       return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    return res.json({ user: userToSafe(user) });
+    }
+    return res.json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role, // ⚠️ FE cần field này để điều hướng admin
+        avatar: user.avatar || null,
+      },
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Lỗi /me:", err);
     return res.status(500).json({ message: "Lỗi server" });
   }
 };

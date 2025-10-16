@@ -145,21 +145,19 @@ exports.getCoursesByInstructor = async (req, res) => {
   }
 };
 
-exports.getMyCourses = async (req, res) => {
+exports.getCourseById = async (req, res) => {
   try {
-    const instructorId = req.user?.id || req.user?._id;
-    if (!instructorId) {
+    const courseId = req.params.id;
+    const user = req.user;
+    if (!user) {
       return res.status(401).json({ message: "Chưa đăng nhập" });
     }
+    console.log("Fetching course with ID:", courseId);
+    const courses = await Course.findById(courseId);
 
-    const courses = await Course.find({ instructor: instructorId })
-      .sort({ createdAt: -1 })
-      .populate("category", "name")
-      .lean();
-
-    return res.json({ total: courses.length, items: courses });
+    return res.json(courses);
   } catch (err) {
-    console.error("getMyCourses error:", err);
+    console.error("getCourseById error:", err);
     return res
       .status(500)
       .json({ message: "Lỗi server khi lấy khóa học của bạn" });
